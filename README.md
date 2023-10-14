@@ -56,6 +56,44 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
+HTTP Status Codes:
+
+HTTP status codes are three-digit numbers returned by a web server to indicate the outcome of an HTTP request. They are grouped into five classes, each with a specific meaning. Here is a list of common HTTP status codes, along with their respective meanings:
+
+Informational Responses (1xx):
+
+100 Continue: The server has received the initial part of the request and will continue to process it.
+101 Switching Protocols: The server is changing the protocol being used on the connection.
+Successful Responses (2xx):
+
+200 OK: The request was successful, and the server has returned the requested data.
+201 Created: The request has been fulfilled, resulting in the creation of a new resource.
+204 No Content: The request was successful, but there is no new information to send back.
+206 Partial Content: The server is fulfilling a partial GET request.
+
+Redirection Responses (3xx):
+
+301 Moved Permanently: The requested resource has been permanently moved to a new location.
+302 Found (or 303 See Other): The requested resource can be found at a different URL.
+304 Not Modified: The client's cached data is still valid, so the server doesn't need to send a new response.
+307 Temporary Redirect: The request should be repeated with another URL.
+
+Client Error Responses (4xx):
+
+400 Bad Request: The server could not understand the request due to invalid syntax or missing information.
+401 Unauthorized: The request requires user authentication. The user needs to log in.
+403 Forbidden: The server understands the request, but it refuses to fulfill it.
+404 Not Found: The requested resource could not be found on the server.
+405 Method Not Allowed: The method specified in the request is not allowed for the resource.
+422 Unprocessable Entity: The server understands the request, but it cannot process it due to semantic errors.
+429 Too Many Requests: The user has sent too many requests in a given amount of time.
+
+Server Error Responses (5xx):
+
+500 Internal Server Error: A generic error message indicating that something has gone wrong on the server.
+501 Not Implemented: The server does not support the functionality required to fulfill the request.
+503 Service Unavailable: The server is currently unable to handle the request due to temporary overloading or maintenance.
+
 
 
 
