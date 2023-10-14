@@ -12,3 +12,5 @@ exports.TOUR_VALIDATION_ERRORS = {
   SUMMARY: "A tour must have a summary",
   COVER_IMAGE: "A tour must have a cover image",
 };
+
+exports.DEVELOPMENT = "development";

@@ -19,7 +19,9 @@
   },
   "homepage": "https://github.com/mounikaperi/natours-api#readme",
   "dependencies": {
+    "express": "^4.18.2",
     "mongoose": "^7.6.2",
+    "morgan": "^1.10.0",
     "slugify": "^1.6.6"
   },
   "devDependencies": {
