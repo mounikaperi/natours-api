@@ -1,8 +1,11 @@
-const mongoose = require("mongoose");
-const tourSchema = require("../schemas/tourSchema");
+const mongoose = require('mongoose');
+const slugify = require('slugify');
+const { tourSchema } = require('../schemas/tourSchema');
 
-tourSchema.virtual("durationWeeks").get(() => tourSchema.duration / 7);
+tourSchema.pre('save', function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
 
-const Tour = mongoose.model("Tour", tourSchema);
-
+const Tour = mongoose.model('Tour', tourSchema);
 module.exports = Tour;

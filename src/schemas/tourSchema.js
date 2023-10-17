@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const { TOUR_VALIDATION_ERRORS } = require("../utils/constants");
+const mongoose = require('mongoose');
+const { TOUR_VALIDATION_ERRORS } = require('../utils/constants');
 
 exports.tourSchema = new mongoose.Schema(
   {
@@ -11,7 +11,6 @@ exports.tourSchema = new mongoose.Schema(
       maxlength: [40, TOUR_VALIDATION_ERRORS.NAME_MAX_LENGTH],
       minlength: [10, TOUR_VALIDATION_ERRORS.NAME_MIN_LENGTH],
     },
-    slug: String,
     duration: {
       type: Number,
       required: [true, TOUR_VALIDATION_ERRORS.DURATION],
@@ -24,7 +23,7 @@ exports.tourSchema = new mongoose.Schema(
       type: String,
       required: [true, TOUR_VALIDATION_ERRORS.DIFFICULTY],
       enum: {
-        values: ["easy", "medium", "difficult"],
+        values: ['easy', 'medium', 'difficult'],
         message: TOUR_VALIDATION_ERRORS.DIFFICULTY_LEVEL,
       },
     },
@@ -47,7 +46,7 @@ exports.tourSchema = new mongoose.Schema(
       validate: function (val) {
         return val < this.price;
       },
-      message: "Discount price ({VALUE}) should be below regular price",
+      message: 'Discount price ({VALUE}) should be below regular price',
     },
     summary: {
       type: String,

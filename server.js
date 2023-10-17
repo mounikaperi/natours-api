@@ -1,28 +1,39 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable prettier/prettier */
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 
-dotenv.config({
-  path: "./config.env"
-});
-
+dotenv.config({ path: './config.env' });
 const app = require('./app');
 
-const DB = process.env.DATABASE.replace(
-  '<PASSWORD>',
-  process.env.DATABASE_PASSWORD
-);
+mongoose.connect(process.env.DATABASE, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
-mongoose
-  .connect(DB, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useFindAndModify: false
-  })
-  .then(() => console.log('DB Connection successful'));
+const db = mongoose.connection;
+
+db.on('connected', () => {
+  console.log(`Mongoose connected to ${process.env.DATABASE}`);
+});
+
+db.on('error', (err) => {
+  console.error(`Mongoose connection error: ${err}`);
+});
+
+db.on('disconnected', () => {
+  console.log('Mongoose disconnected');
+});
+
+// Close the Mongoose connection when the Node process terminates
+process.on('SIGINT', () => {
+  db.close(() => {
+    console.log('Mongoose connection closed through app termination');
+    process.exit(0);
+  });
+});
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });
+
+module.exports = db;
