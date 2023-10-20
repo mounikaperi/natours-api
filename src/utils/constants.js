@@ -37,9 +37,20 @@ exports.HTTP_STATUS_CODES = {
     UNPROCESSABLE_ENTITY: 422,
     TOO_MANY_REQUESTS: 429,
   },
+  SERVER_ERROR_RESPONSE: {
+    INTERNAL_SERVER_ERROR: 500,
+    NOT_IMPLEMENTED: 501,
+    SERVICE_UNAVAILABLE: 503,
+  },
 };
 
 exports.HTTP_STATUS = {
   SUCCESS: 'success',
   FAIL: 'fail',
+  ERROR: 'error',
+};
+
+exports.HTTP_STATUS_MESSAGES = {
+  [this.HTTP_STATUS_CODES.SERVER_ERROR_RESPONSE.INTERNAL_SERVER_ERROR]:
+    'This route is not yet defined',
 };
