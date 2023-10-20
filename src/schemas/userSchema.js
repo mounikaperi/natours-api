@@ -23,5 +23,12 @@ exports.userSchema = mongoose.Schema({
   passwordConfirm: {
     type: String,
     required: [true, USER_SCHEMA_VALIDATION_ERRORS.CONFIRM_PASSWORD],
+    validate: {
+      // This only works on create and save
+      validator: function (el) {
+        return el === el.password;
+      },
+      message: 'Passwords are not the same',
+    },
   },
 });
