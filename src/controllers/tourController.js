@@ -1,116 +1,72 @@
 /* eslint-disable prettier/prettier */
 const Tour = require("../models/tourModel");
 const { HTTP_STATUS_CODES, HTTP_STATUS } = require("../utils/constants");
+const catchAsync = require("../utils/commonUtils");
 
-exports.getAllTours = async (request, response) => {
-  try {
-    const tours = await Tour.find();
-    response
-      .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK)
-      .json({
-        status: HTTP_STATUS.SUCCESS,
-        totalNumberOfTours: tours.length,
-        data: { tours }
-      }
-      );
-  } catch (error) {
-    response
-      .status(HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.NOT_FOUND)
-      .json({
-        status: HTTP_STATUS.FAIL,
-        message: error
-      });
-  }
-}
+exports.getAllTours = catchAsync(async (request, response, next) => {
+  const tours = await Tour.find();
+  response
+    .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK)
+    .json({
+      status: HTTP_STATUS.SUCCESS,
+      totalNumberOfTours: tours.length,
+      data: { tours }
+    }
+    );
+});
 
-exports.getTour = async (request, response) => {
-  try {
-    const { params } = request || {};
-    const { id: tourId } = params || {};
-    const tour = await Tour.findById(tourId);
-    response
-      .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK)
-      .json({
-        status: HTTP_STATUS.SUCCESS,
-        data: { tour }
-      });
-  } catch (error) {
-    response
-      .status(HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.NOT_FOUND)
-      .json({
-        status: HTTP_STATUS.FAIL,
-        message: error
-      }
-      );
+exports.getTour = catchAsync(async (request, response, next) => {
+  const { params } = request || {};
+  const { id: tourId } = params || {};
+  const tour = await Tour.findById(tourId);
+  if (!tour) {
+    return next(new AppError('No tour found with that ID', HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.NOT_FOUND))
   }
-};
+  response
+    .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK)
+    .json({
+      status: HTTP_STATUS.SUCCESS,
+      data: { tour }
+    });
+});
 
-exports.createTour = async (request, response) => {
-  try {
-    const newTour = await Tour.create(request.body);
-    response
-      .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.CREATED)
-      .json({
-        status: HTTP_STATUS.SUCCESS,
-        data: {
-          tour: newTour
-        }
-      });
-  } catch (error) {
-    response
-      .status(HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.BAD_REQUEST)
-      .json({
-        status: HTTP_STATUS.FAIL,
-        message: error
-      })
-  }
-};
+exports.createTour = catchAsync(async (request, response) => {
+  const newTour = await Tour.create(request.body);
+  response
+    .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.CREATED)
+    .json({
+      status: HTTP_STATUS.SUCCESS,
+      data: {
+        tour: newTour
+      }
+    });
+});
 
-exports.updateTour = async (request, response) => {
-  try {
-    const { params, body } = request || {};
-    const { id: tourId } = params || {};
-    const updatedTour = await Tour.findByIdAndUpdate(tourId, body, {
-      new: true,
-      runValidators: true
-    })
-    response
-      .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK)
-      .json({
-        status: HTTP_STATUS.SUCCESS,
-        data: {
-          updatedTour
-        }
+exports.updateTour = catchAsync(async (request, response) => {
+  const { params, body } = request || {};
+  const { id: tourId } = params || {};
+  const updatedTour = await Tour.findByIdAndUpdate(tourId, body, {
+    new: true,
+    runValidators: true
+  })
+  response
+    .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK)
+    .json({
+      status: HTTP_STATUS.SUCCESS,
+      data: {
+        updatedTour
       }
-      );
-  } catch (error) {
-    response
-      .status(HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.NOT_FOUND)
-      .json({
-        status: HTTP_STATUS.FAIL,
-        message: error
-      }
-      )
-  }
-}
+    }
+    );
+})
 
-exports.deleteTour = async (request, response) => {
-  try {
-    await Tour.findByIdAndDelete(request.params.id);
-    response
-      .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.NO_CONTENT)
-      .json({
-        status: HTTP_STATUS.SUCCESS,
-        message: "The tour has been deleted"
-      }
-      )
-  } catch (error) {
-    response
-      .status(HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.NOT_FOUND)
-      .json({
-        status: HTTP_STATUS.FAIL,
-        message: error
-      }
-      )
-  }
-}
+exports.deleteTour = catchAsync(async (request, response) => {
+  await Tour.findByIdAndDelete(request.params.id);
+  response
+    .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.NO_CONTENT)
+    .json({
+      status: HTTP_STATUS.SUCCESS,
+      message: "The tour has been deleted"
+    }
+    )
+});

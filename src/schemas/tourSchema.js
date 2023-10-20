@@ -11,6 +11,7 @@ exports.tourSchema = new mongoose.Schema(
       maxlength: [40, TOUR_VALIDATION_ERRORS.NAME_MAX_LENGTH],
       minlength: [10, TOUR_VALIDATION_ERRORS.NAME_MIN_LENGTH],
     },
+    slug: String,
     duration: {
       type: Number,
       required: [true, TOUR_VALIDATION_ERRORS.DURATION],
