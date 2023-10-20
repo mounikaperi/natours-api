@@ -1,4 +1,4 @@
-exports.TOUR_VALIDATION_ERRORS = {
+exports.TOUR_SCHEMA_VALIDATION_ERRORS = {
   NAME: 'A tour must have a name',
   NAME_MAX_LENGTH: 'A tour name must have less than or equal to 40 characters',
   NAME_MIN_LENGTH: 'A tour name must have more or equal to 10 characters',
@@ -11,6 +11,14 @@ exports.TOUR_VALIDATION_ERRORS = {
   PRICE: 'A tour must have a price',
   SUMMARY: 'A tour must have a summary',
   COVER_IMAGE: 'A tour must have a cover image',
+};
+
+exports.USER_SCHEMA_VALIDATION_ERRORS = {
+  NAME: 'Please enter your name',
+  EMAIL: 'Please enter your emailId',
+  VALID_EMAIL: 'Please enter a valid email',
+  PASSWORD: 'Please provide a password',
+  CONFIRM_PASSWORD: 'Please confirm your password',
 };
 
 exports.HTTP_STATUS_CODES = {
