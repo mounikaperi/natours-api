@@ -9,3 +9,5 @@ class AppError extends Error {
       : HTTP_STATUS.SUCCESS;
   }
 }
+
+module.exports = AppError;
