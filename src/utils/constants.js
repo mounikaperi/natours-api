@@ -21,9 +21,28 @@ exports.USER_SCHEMA_VALIDATION_ERRORS = {
   CONFIRM_PASSWORD: 'Please confirm your password',
 };
 
-exports.LOGIN_ERRORS = {
+exports.AUTHENTICATION_ERRORS = {
   MISSING_EMAIL_PASSWORD: 'Please provide email and password',
   INVALID_EMAIL_PASSWORD: 'Incorrect email or password',
+  NOT_LOGGED_IN: 'You are not logged in!!! Please login to get access',
+  INVALID_TOKEN: 'Invalid Token. Please login again',
+  EXPIRED_TOKEN: 'Your token has expired! Please log in again',
+  DEFAULT: 'Something went very wrong!',
+};
+
+exports.ERROR = 'error';
+
+exports.NODE_ENV = {
+  DEVELOPMENT: 'development',
+  PRODUCTION: 'production',
+};
+
+exports.ERROR_TYPES = {
+  CAST_ERROR: 'CastError',
+  DUPLICATES_ERROR: 11000,
+  VALIDATION_ERROR: 'ValidationError',
+  JSONWEBTOKEN_ERROR: 'JsonWebTokenError',
+  TOKEN_EXPIRED_ERROR: 'TokenExpiredError',
 };
 
 exports.HTTP_STATUS_CODES = {

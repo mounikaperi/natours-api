@@ -1,11 +1,12 @@
 const jwt = require('jsonwebtoken');
+const { promisify } = require('util');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/commonUtils');
 const AppError = require('../utils/AppError');
 const {
   HTTP_STATUS_CODES,
   HTTP_STATUS,
-  LOGIN_ERRORS,
+  AUTHENTICATION_ERRORS,
 } = require('../utils/constants');
 
 const returnSignedJwtToken = (id) =>
@@ -37,7 +38,7 @@ exports.login = catchAsync(async (request, response, next) => {
   if (!email || !enteredPassword) {
     return next(
       new AppError(
-        LOGIN_ERRORS.MISSING_EMAIL_PASSWORD,
+        AUTHENTICATION_ERRORS.MISSING_EMAIL_PASSWORD,
         HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.BAD_REQUEST,
       ),
     );
@@ -52,7 +53,7 @@ exports.login = catchAsync(async (request, response, next) => {
   if (!user || !isComparedPasswordValid) {
     return next(
       new AppError(
-        LOGIN_ERRORS.INVALID_EMAIL_PASSWORD,
+        AUTHENTICATION_ERRORS.INVALID_EMAIL_PASSWORD,
         HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.UNAUTHORIZED,
       ),
     );
@@ -64,3 +65,32 @@ exports.login = catchAsync(async (request, response, next) => {
     token,
   });
 });
+
+exports.protectRoutesFromUnauthorizedAccess = catchAsync(
+  async (request, response, next) => {
+    // Getting token and check if it is present
+    let token;
+    if (
+      request.headers.authorization &&
+      request.headers.authorization.startsWith('Bearer')
+    ) {
+      token = request.headers.authorization.split(' ')[1];
+    }
+    if (!token) {
+      return next(
+        new AppError(
+          AUTHENTICATION_ERRORS.NOT_LOGGED_IN,
+          HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.UNAUTHORIZED,
+        ),
+      );
+    }
+    // Verification token
+    const decodedToken = await promisify(jwt.verify)(
+      token,
+      process.env.JWT_SECRET,
+    );
+    // Check if user still exists - To ensure user is not deleted from db after token is generated
+    // Check if user changed password after the token was issued
+    next();
+  },
+);
