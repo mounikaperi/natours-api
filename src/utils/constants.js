@@ -21,6 +21,11 @@ exports.USER_SCHEMA_VALIDATION_ERRORS = {
   CONFIRM_PASSWORD: 'Please confirm your password',
 };
 
+exports.LOGIN_ERRORS = {
+  MISSING_EMAIL_PASSWORD: 'Please provide email and password',
+  INVALID_EMAIL_PASSWORD: 'Incorrect email or password',
+};
+
 exports.HTTP_STATUS_CODES = {
   SUCCESSFUL_RESPONSE: {
     OK: 200,

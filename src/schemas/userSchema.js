@@ -19,6 +19,7 @@ exports.userSchema = mongoose.Schema({
     type: String,
     required: [true, USER_SCHEMA_VALIDATION_ERRORS.PASSWORD],
     minLength: 8,
+    select: false,
   },
   passwordConfirm: {
     type: String,

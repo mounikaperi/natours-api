@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 const { userSchema } = require('../schemas/userSchema');
 
 userSchema.pre('save', async function (next) {
@@ -8,4 +9,16 @@ userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, 12);
   // passwordConfirm shouldn't be stored in db
   this.passwordConfirm = undefined;
+  next();
 });
+
+userSchema.methods.comparePasswords = async function (
+  candidatePassword,
+  userPassword,
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;
