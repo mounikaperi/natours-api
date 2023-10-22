@@ -29,6 +29,7 @@ exports.AUTHENTICATION_ERRORS = {
   EXPIRED_TOKEN: 'Your token has expired! Please log in again',
   NO_USER: 'The user belonging to this token no longer exists!!',
   PASSWORD_CHANGED: 'User recently changed password! Please login again',
+  NO_PERMISSION: 'You do not have permission to perform this action',
   DEFAULT: 'Something went very wrong!',
 };
 
@@ -79,4 +80,11 @@ exports.HTTP_STATUS = {
 exports.HTTP_STATUS_MESSAGES = {
   [this.HTTP_STATUS_CODES.SERVER_ERROR_RESPONSE.INTERNAL_SERVER_ERROR]:
     'This route is not yet defined',
+};
+
+exports.ROLES = {
+  USER: 'user',
+  TOUR_GUIDE: 'tour-guide',
+  LEAD_GUIDE: 'lead-guide',
+  ADMIN: 'admin',
 };

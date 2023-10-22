@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
-const { USER_SCHEMA_VALIDATION_ERRORS } = require('../utils/constants');
+const { USER_SCHEMA_VALIDATION_ERRORS, ROLES } = require('../utils/constants');
 
 exports.userSchema = mongoose.Schema({
   name: {
@@ -15,6 +15,11 @@ exports.userSchema = mongoose.Schema({
     validate: [validator.isEmail, USER_SCHEMA_VALIDATION_ERRORS.VALID_EMAIL],
   },
   photo: String,
+  role: {
+    type: String,
+    enum: [ROLES.USER, ROLES.TOUR_GUIDE, ROLES.LEAD_GUIDE, ROLES.ADMIN],
+    default: ROLES.USER,
+  },
   password: {
     type: String,
     required: [true, USER_SCHEMA_VALIDATION_ERRORS.PASSWORD],

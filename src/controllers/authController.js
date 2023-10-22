@@ -115,3 +115,18 @@ exports.protectRoutesFromUnauthorizedAccess = catchAsync(
     next();
   },
 );
+
+exports.restrictAccessTo =
+  (...roles) =>
+  (request, response, next) => {
+    // roles => array of roles passed as argument, protectRoutesFromUnauthorizedAccess stores the user in request
+    if (!roles.includes(request.user.role)) {
+      return next(
+        new AppError(
+          AUTHENTICATION_ERRORS.NO_PERMISSION,
+          HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.FORBIDDEN,
+        ),
+      );
+    }
+    next();
+  };
