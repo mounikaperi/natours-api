@@ -84,13 +84,34 @@ exports.protectRoutesFromUnauthorizedAccess = catchAsync(
         ),
       );
     }
-    // Verification token
+    // Verification token- to make sure token is not altered by anyone
     const decodedToken = await promisify(jwt.verify)(
       token,
       process.env.JWT_SECRET,
     );
     // Check if user still exists - To ensure user is not deleted from db after token is generated
+    const existingUserWithDecodedTokenId = await User.findById(decodedToken.id);
+    if (!existingUserWithDecodedTokenId) {
+      return next(
+        new AppError(
+          AUTHENTICATION_ERRORS.NO_USER,
+          HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.UNAUTHORIZED,
+        ),
+      );
+    }
     // Check if user changed password after the token was issued
+    if (
+      existingUserWithDecodedTokenId.checkIfPasswordModified(decodedToken.iat)
+    ) {
+      return next(
+        new AppError(
+          AUTHENTICATION_ERRORS.PASSWORD_CHANGED,
+          HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.UNAUTHORIZED,
+        ),
+      );
+    }
+    // Grant access to the protected route
+    request.user = existingUserWithDecodedTokenId;
     next();
   },
 );

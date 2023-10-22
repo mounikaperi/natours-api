@@ -32,4 +32,5 @@ exports.userSchema = mongoose.Schema({
       message: 'Passwords are not the same',
     },
   },
+  passwordChangedAt: Date,
 });

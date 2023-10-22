@@ -27,6 +27,8 @@ exports.AUTHENTICATION_ERRORS = {
   NOT_LOGGED_IN: 'You are not logged in!!! Please login to get access',
   INVALID_TOKEN: 'Invalid Token. Please login again',
   EXPIRED_TOKEN: 'Your token has expired! Please log in again',
+  NO_USER: 'The user belonging to this token no longer exists!!',
+  PASSWORD_CHANGED: 'User recently changed password! Please login again',
   DEFAULT: 'Something went very wrong!',
 };
 
