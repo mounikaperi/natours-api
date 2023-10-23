@@ -31,6 +31,12 @@ exports.AUTHENTICATION_ERRORS = {
   NO_USER_FOR_EMAIL: 'There is no user with the entered email address!!',
   PASSWORD_CHANGED: 'User recently changed password! Please login again',
   NO_PERMISSION: 'You do not have permission to perform this action',
+  RESET_PASSWORD:
+    'Forgot your password? Submit a PATCH request with your new password and passwordConfirm',
+  IGNORE_PASSWORD_RESET_EMAIL:
+    'If you didnt forget your password, please ignore this email!',
+  TOKEN_SENT_TO_EMAIL: 'Token sent to email!!!',
+  SEND_EMAIL_FAIL: 'There was an error sending the email. Try again later!!!',
   DEFAULT: 'Something went very wrong!',
 };
 

@@ -3,6 +3,7 @@ const { promisify } = require('util');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/commonUtils');
 const AppError = require('../utils/AppError');
+const sendEmail = require('../utils/email');
 const {
   HTTP_STATUS_CODES,
   HTTP_STATUS,
@@ -148,4 +149,28 @@ exports.forgotPassword = async (request, response, next) => {
   const resetToken = existingUserBasedOnEmail.createPasswordResetToken();
   await existingUserBasedOnEmail.save({ validateBeforeSave: false });
   // send it to user's email
+  // eslint-disable-next-line prettier/prettier
+  const resetURL = `${request.protocol}://${request.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+  const message = `${AUTHENTICATION_ERRORS.RESET_PASSWORD}: ${resetURL}. ${AUTHENTICATION_ERRORS.IGNORE_PASSWORD_RESET_EMAIL}`;
+  try {
+    await sendEmail({
+      email: existingUserBasedOnEmail.email,
+      subject: 'Your password reset token (valid for 10 mins)',
+      message,
+    });
+    response.status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK).json({
+      status: HTTP_STATUS.SUCCESS,
+      message: AUTHENTICATION_ERRORS.TOKEN_SENT_TO_EMAIL,
+    });
+  } catch (error) {
+    existingUserBasedOnEmail.passwordResetToken = undefined;
+    existingUserBasedOnEmail.passwordResetExpires = undefined;
+    await existingUserBasedOnEmail.save({ validateBeforeSave: false });
+    return next(
+      new AppError(
+        AUTHENTICATION_ERRORS.SEND_EMAIL_FAIL,
+        HTTP_STATUS_CODES.SERVER_ERROR_RESPONSE.INTERNAL_SERVER_ERROR,
+      ),
+    );
+  }
 };
