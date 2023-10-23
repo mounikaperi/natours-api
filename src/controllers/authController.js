@@ -94,7 +94,7 @@ exports.protectRoutesFromUnauthorizedAccess = catchAsync(
     if (!existingUserWithDecodedTokenId) {
       return next(
         new AppError(
-          AUTHENTICATION_ERRORS.NO_USER,
+          AUTHENTICATION_ERRORS.NO_USER_FOR_TOKEN,
           HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.UNAUTHORIZED,
         ),
       );
@@ -130,3 +130,22 @@ exports.restrictAccessTo =
     }
     next();
   };
+
+exports.forgotPassword = async (request, response, next) => {
+  // Get user based on posted email
+  const existingUserBasedOnEmail = await User.findOne({
+    email: request.body.email,
+  });
+  if (!existingUserBasedOnEmail) {
+    return next(
+      new AppError(
+        AUTHENTICATION_ERRORS.NO_USER_FOR_EMAIL,
+        HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.NOT_FOUND,
+      ),
+    );
+  }
+  // Generate random reset token
+  const resetToken = existingUserBasedOnEmail.createPasswordResetToken();
+  await existingUserBasedOnEmail.save({ validateBeforeSave: false });
+  // send it to user's email
+};
