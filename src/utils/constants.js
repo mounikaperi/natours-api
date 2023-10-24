@@ -39,6 +39,7 @@ exports.AUTHENTICATION_ERRORS = {
     'If you didnt forget your password, please ignore this email!',
   TOKEN_SENT_TO_EMAIL: 'Token sent to email!!!',
   SEND_EMAIL_FAIL: 'There was an error sending the email. Try again later!!!',
+  NOT_A_PASSWORD_ROUTE: 'This route is not for password updates',
   DEFAULT: 'Something went very wrong!',
 };
 

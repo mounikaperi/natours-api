@@ -14,6 +14,11 @@ router.patch(
   authController.protectRoutesFromUnauthorizedAccess,
   authController.updatePassword,
 );
+router.patch(
+  '/updateMe',
+  authController.protectRoutesFromUnauthorizedAccess,
+  userController.updateMe,
+);
 
 router
   .route('/')

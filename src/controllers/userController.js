@@ -1,10 +1,44 @@
 const User = require('../models/tourModel');
 const catchAsync = require('../utils/commonUtils');
+const AppError = require('../utils/AppError');
 const {
   HTTP_STATUS_CODES,
   HTTP_STATUS,
   HTTP_STATUS_MESSAGES,
+  AUTHENTICATION_ERRORS,
 } = require('../utils/constants');
+
+exports.updateMe = async (request, response, next) => {
+  // Create Error if user tries to update password related data
+  if (request.body.password || request.body.passwordConfirm) {
+    return next(
+      new AppError(
+        AUTHENTICATION_ERRORS.NOT_A_PASSWORD_ROUTE,
+        HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.BAD_REQUEST,
+      ),
+    );
+  }
+  // Update the user document- role-admin and other important fields cannot be updated
+  const filteredBody = catchAsync.filterInputRequest(
+    request.body,
+    'name',
+    'email',
+  );
+  const updatedUser = await User.findByIdAndUpdate(
+    request.user.id,
+    filteredBody,
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+  response.status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK).json({
+    status: HTTP_STATUS.SUCCESS,
+    data: {
+      user: updatedUser,
+    },
+  });
+};
 
 exports.getAllUsers = catchAsync(async (request, response) => {
   const users = await User.find();
