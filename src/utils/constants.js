@@ -27,9 +27,11 @@ exports.AUTHENTICATION_ERRORS = {
   NOT_LOGGED_IN: 'You are not logged in!!! Please login to get access',
   INVALID_TOKEN: 'Invalid Token. Please login again',
   EXPIRED_TOKEN: 'Your token has expired! Please log in again',
+  INVALID_OR_EXPIRED_TOKEN: 'Token is invalid or has expired',
   NO_USER_FOR_TOKEN: 'The user belonging to this token no longer exists!!',
   NO_USER_FOR_EMAIL: 'There is no user with the entered email address!!',
   PASSWORD_CHANGED: 'User recently changed password! Please login again',
+  WRONG_PASSWORD: 'The password you entered is wrong!!',
   NO_PERMISSION: 'You do not have permission to perform this action',
   RESET_PASSWORD:
     'Forgot your password? Submit a PATCH request with your new password and passwordConfirm',

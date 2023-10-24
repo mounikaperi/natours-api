@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const User = require('../models/userModel');
@@ -15,6 +16,17 @@ const returnSignedJwtToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+const createSendToken = (user, statusCode, response) => {
+  const token = returnSignedJwtToken(user._id);
+  response.status(statusCode).json({
+    status: HTTP_STATUS.SUCCESS,
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
 exports.signup = async (request, response, next) => {
   const newUser = User.create({
     name: request.body.name,
@@ -22,14 +34,11 @@ exports.signup = async (request, response, next) => {
     password: request.body.password,
     passwordConfirm: request.body.passwordConfirm,
   });
-  const token = returnSignedJwtToken(newUser._id);
-  response.status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.CREATED).json({
-    status: HTTP_STATUS.SUCCESS,
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  createSendToken(
+    newUser,
+    HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.CREATED,
+    response,
+  );
 };
 
 exports.login = catchAsync(async (request, response, next) => {
@@ -60,22 +69,17 @@ exports.login = catchAsync(async (request, response, next) => {
     );
   }
   // If all are validated, send the jwt to the client
-  const token = returnSignedJwtToken(user._id);
-  response.status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK).json({
-    status: HTTP_STATUS.SUCCESS,
-    token,
-  });
+  createSendToken(user, HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK, response);
 });
 
 exports.protectRoutesFromUnauthorizedAccess = catchAsync(
   async (request, response, next) => {
     // Getting token and check if it is present
     let token;
-    if (
-      request.headers.authorization &&
-      request.headers.authorization.startsWith('Bearer')
-    ) {
-      token = request.headers.authorization.split(' ')[1];
+    const { headers } = request || {};
+    const { authorization } = headers || {};
+    if (authorization && authorization.startsWith('Bearer')) {
+      token = authorization.split(' ')[1];
     }
     if (!token) {
       return next(
@@ -163,8 +167,8 @@ exports.forgotPassword = async (request, response, next) => {
       message: AUTHENTICATION_ERRORS.TOKEN_SENT_TO_EMAIL,
     });
   } catch (error) {
-    existingUserBasedOnEmail.passwordResetToken = undefined;
-    existingUserBasedOnEmail.passwordResetExpires = undefined;
+    existingUserBasedOnEmail.passwordResetToken = null;
+    existingUserBasedOnEmail.passwordResetExpires = null;
     await existingUserBasedOnEmail.save({ validateBeforeSave: false });
     return next(
       new AppError(
@@ -173,4 +177,59 @@ exports.forgotPassword = async (request, response, next) => {
       ),
     );
   }
+};
+
+exports.resetPassword = async (request, response, next) => {
+  // Get user based on the token
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(request.params.token)
+    .digest('hex');
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+  // If the token has not expired, and there is a user, set the new password
+  if (!user) {
+    return next(
+      new AppError(
+        AUTHENTICATION_ERRORS.INVALID_OR_EXPIRED_TOKEN,
+        HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.BAD_REQUEST,
+      ),
+    );
+  }
+  user.password = request.body.password;
+  user.passwordConfirm = request.body.passwordConfirm;
+  user.passwordResetToken = null;
+  user.passwordResetExpires = null;
+  await user.save();
+  // Update changePasswordAt property for the user
+  // Log the user in, send JWT
+  createSendToken(
+    user,
+    HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.CREATED,
+    response,
+  );
+};
+
+exports.updatePassword = async (request, response, next) => {
+  // Get user from the collection
+  const user = await User.findById(request.user.id).select('+password');
+  // Check if posted password is valid
+  if (
+    !(await user.comparePasswords(request.body.passwordCurrent, user.password))
+  ) {
+    return next(
+      new AppError(
+        AUTHENTICATION_ERRORS.WRONG_PASSWORD,
+        HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.UNAUTHORIZED,
+      ),
+    );
+  }
+  // Update password
+  user.password = request.body.password;
+  user.passwordConfirm = request.body.passwordConfirm;
+  await user.save();
+  // Log user in and send JWT
+  createSendToken(user, HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK, response);
 };
