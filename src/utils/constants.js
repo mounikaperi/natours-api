@@ -21,6 +21,12 @@ exports.USER_SCHEMA_VALIDATION_ERRORS = {
   CONFIRM_PASSWORD: 'Please confirm your password',
 };
 
+exports.REVIEW_SCHEMA_VALIDATION_ERRORS = {
+  NO_REVIEW: 'Review cannot be empty!!',
+  TOUR_REVIEW: 'Review must belong to a tour',
+  USER_REVIEW: 'Review must belong to a user',
+};
+
 exports.AUTHENTICATION_ERRORS = {
   MISSING_EMAIL_PASSWORD: 'Please provide email and password',
   INVALID_EMAIL_PASSWORD: 'Incorrect email or password',
