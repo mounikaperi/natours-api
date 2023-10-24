@@ -19,6 +19,12 @@ userSchema.pre('save', function (next) {
   next();
 });
 
+userSchema.pre(/^find/, function (next) {
+  // this points to the current document;
+  this.find({ active: { $ne: false } });
+  next();
+});
+
 userSchema.methods.comparePasswords = async function (
   candidatePassword,
   userPassword,

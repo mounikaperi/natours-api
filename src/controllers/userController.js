@@ -1,4 +1,4 @@
-const User = require('../models/tourModel');
+const User = require('../models/userModel');
 const catchAsync = require('../utils/commonUtils');
 const AppError = require('../utils/AppError');
 const {
@@ -39,6 +39,14 @@ exports.updateMe = async (request, response, next) => {
     },
   });
 };
+
+exports.deleteMe = catchAsync(async (request, response, next) => {
+  await User.findByIdAndUpdate(request.user.id, { active: false });
+  response.status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.NO_CONTENT).json({
+    status: HTTP_STATUS.SUCCESS,
+    data: null,
+  });
+});
 
 exports.getAllUsers = catchAsync(async (request, response) => {
   const users = await User.find();
