@@ -40,6 +40,8 @@ exports.AUTHENTICATION_ERRORS = {
   TOKEN_SENT_TO_EMAIL: 'Token sent to email!!!',
   SEND_EMAIL_FAIL: 'There was an error sending the email. Try again later!!!',
   NOT_A_PASSWORD_ROUTE: 'This route is not for password updates',
+  TOO_MANY_REQUESTS:
+    'Too many requests from this IP, please try again in an hour!!!',
   DEFAULT: 'Something went very wrong!',
 };
 

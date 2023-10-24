@@ -9,6 +9,7 @@ const {
   HTTP_STATUS_CODES,
   HTTP_STATUS,
   AUTHENTICATION_ERRORS,
+  NODE_ENV,
 } = require('../utils/constants');
 
 const returnSignedJwtToken = (id) =>
@@ -18,6 +19,18 @@ const returnSignedJwtToken = (id) =>
 
 const createSendToken = (user, statusCode, response) => {
   const token = returnSignedJwtToken(user._id);
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
+    ),
+    secure: true,
+    httpOnly: true,
+  };
+  if (process.env.NODE_ENV === NODE_ENV.PRODUCTION) {
+    cookieOptions.secure = true;
+  }
+  response.cookie('jwt', token, cookieOptions);
+  user.password = undefined; // remove password from output
   response.status(statusCode).json({
     status: HTTP_STATUS.SUCCESS,
     token,

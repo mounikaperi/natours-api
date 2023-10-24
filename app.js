@@ -1,11 +1,16 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const tourRouter = require('./src/routes/tourRouter');
+const { AUTHENTICATION_ERRORS } = require('./src/utils/constants');
 
 const app = express();
 
-// if (process.env.NODE_ENV === DEVELOPMENT) {
-//   app.use(morgan);
-// }
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: AUTHENTICATION_ERRORS.TOO_MANY_REQUESTS,
+});
+app.use('/api', limiter);
 
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
