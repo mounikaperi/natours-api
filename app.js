@@ -1,10 +1,16 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 const tourRouter = require('./src/routes/tourRouter');
+const userRouter = require('./src/routes/userRouter');
 const { AUTHENTICATION_ERRORS } = require('./src/utils/constants');
 
 const app = express();
 
+// set Security HTTP Headers
+app.use(helmet());
+
+// Limit requests from same API
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
@@ -12,9 +18,13 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-app.use(express.json());
+// Body parser, reading data from body into request.body
+app.use(express.json({ limit: '10kb' }));
+
+// Serving static file
 app.use(express.static(`${__dirname}/public`));
 
+// Test Middleware
 app.use((req, res, next) => {
   console.log('Hello from middleware');
   next();
@@ -27,5 +37,6 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
 
 module.exports = app;
