@@ -6,7 +6,9 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const tourRouter = require('./src/routes/tourRouter');
 const userRouter = require('./src/routes/userRouter');
+const reviewRouter = require('./src/routes/reviewRouter');
 const { AUTHENTICATION_ERRORS } = require('./src/utils/constants');
+const AppError = require('./src/utils/AppError');
 
 const app = express();
 
@@ -61,5 +63,10 @@ app.use((req, res, next) => {
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
+
+app.all('*', (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
 
 module.exports = app;
