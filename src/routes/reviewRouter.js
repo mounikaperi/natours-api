@@ -15,3 +15,17 @@ router
     reviewController.setTourUserIds,
     reviewController.createReview,
   );
+
+router
+  .route('/:id')
+  .get(reviewController.getReview)
+  .patch(
+    authController.restrictAccessTo(ROLES.USER, ROLES.ADMIN),
+    reviewController.updateReview,
+  )
+  .delete(
+    authController.restrictAccessTo(ROLES.USER, ROLES.ADMIN),
+    reviewController.deleteReview,
+  );
+
+module.exports = router;
