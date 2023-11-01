@@ -88,17 +88,19 @@ const frameErrorMessagesBasedOnError = (error) => {
       parsedError = handleDBValidationError(parsedError);
       break;
     case ERROR_TYPES.JSONWEBTOKEN_ERROR:
-      parsedError = handleJWTError(parsedError);
+      parsedError = handleJWTError();
       break;
     case ERROR_TYPES.TOKEN_EXPIRED_ERROR:
-      parsedError = handleJWTExpiredError(parsedError);
+      parsedError = handleJWTExpiredError();
       break;
     default:
       break;
   }
+  return parsedError;
 };
 
 module.exports = (error, request, response, next) => {
+  let parsedError;
   error.statusCode =
     error.statusCode ||
     HTTP_STATUS_CODES.SERVER_ERROR_RESPONSE.INTERNAL_SERVER_ERROR;
@@ -108,8 +110,8 @@ module.exports = (error, request, response, next) => {
       sendErrorDev(error, response);
       break;
     case NODE_ENV.PRODUCTION:
-      frameErrorMessagesBasedOnError(error);
-      sendErrorProd(error, response);
+      parsedError = frameErrorMessagesBasedOnError(error);
+      sendErrorProd(parsedError, response);
       break;
     default:
       break;

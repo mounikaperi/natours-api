@@ -106,3 +106,7 @@ exports.ROLES = {
   LEAD_GUIDE: 'lead-guide',
   ADMIN: 'admin',
 };
+
+exports.COMMON_MODEL_ERRORS = {
+  NO_DOCUMENT_FOUND: 'No document found with that ID',
+};
