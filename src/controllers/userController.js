@@ -1,12 +1,17 @@
+const factoryHandler = require('../handlers/factoryHandler');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/commonUtils');
 const AppError = require('../utils/AppError');
 const {
   HTTP_STATUS_CODES,
   HTTP_STATUS,
-  HTTP_STATUS_MESSAGES,
   AUTHENTICATION_ERRORS,
 } = require('../utils/constants');
+
+exports.getMe = (request, response, next) => {
+  request.params.id = request.user.id;
+  next();
+};
 
 exports.updateMe = async (request, response, next) => {
   // Create Error if user tries to update password related data
@@ -48,60 +53,7 @@ exports.deleteMe = catchAsync(async (request, response, next) => {
   });
 });
 
-exports.getAllUsers = catchAsync(async (request, response) => {
-  const users = await User.find();
-  response.status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK).json({
-    status: HTTP_STATUS.SUCCESS,
-    data: {
-      users,
-    },
-  });
-});
-
-exports.getUser = (request, response) => {
-  response
-    .status(HTTP_STATUS_CODES.SERVER_ERROR_RESPONSE.INTERNAL_SERVER_ERROR)
-    .json({
-      status: HTTP_STATUS.ERROR,
-      message:
-        HTTP_STATUS_MESSAGES[
-          HTTP_STATUS_CODES.SERVER_ERROR_RESPONSE.INTERNAL_SERVER_ERROR
-        ],
-    });
-};
-
-exports.createUser = (request, response) => {
-  response
-    .status(HTTP_STATUS_CODES.SERVER_ERROR_RESPONSE.INTERNAL_SERVER_ERROR)
-    .json({
-      status: HTTP_STATUS.ERROR,
-      message:
-        HTTP_STATUS_MESSAGES[
-          HTTP_STATUS_CODES.SERVER_ERROR_RESPONSE.INTERNAL_SERVER_ERROR
-        ],
-    });
-};
-
-exports.updateUser = (request, response) => {
-  response
-    .status(HTTP_STATUS_CODES.SERVER_ERROR_RESPONSE.INTERNAL_SERVER_ERROR)
-    .json({
-      status: HTTP_STATUS.ERROR,
-      message:
-        HTTP_STATUS_MESSAGES[
-          HTTP_STATUS_CODES.SERVER_ERROR_RESPONSE.INTERNAL_SERVER_ERROR
-        ],
-    });
-};
-
-exports.deleteUser = (request, response) => {
-  response
-    .status(HTTP_STATUS_CODES.SERVER_ERROR_RESPONSE.INTERNAL_SERVER_ERROR)
-    .json({
-      status: HTTP_STATUS.ERROR,
-      message:
-        HTTP_STATUS_MESSAGES[
-          HTTP_STATUS_CODES.SERVER_ERROR_RESPONSE.INTERNAL_SERVER_ERROR
-        ],
-    });
-};
+exports.getUser = factoryHandler.getOne(User);
+exports.getAllUsers = factoryHandler.getAll(User);
+exports.updateUser = factoryHandler.updateOne(User);
+exports.deleteUser = factoryHandler.deleteOne(User);
