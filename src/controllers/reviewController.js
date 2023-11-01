@@ -1,24 +1,14 @@
 const Review = require('../models/reviewModel');
-const catchAsync = require('../utils/commonUtils');
-const { HTTP_STATUS_CODES, HTTP_STATUS } = require('../utils/constants');
+const factoryHandler = require('../handlers/factoryHandler');
 
-exports.getAllReviews = catchAsync(async (request, response, next) => {
-  const reviews = await Review.find();
-  response.status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK).json({
-    status: HTTP_STATUS.SUCCESS,
-    results: reviews.length,
-    data: {
-      reviews,
-    },
-  });
-});
+exports.setTourUserIds = (request, response, next) => {
+  if (!request.body.tour) request.body.tour = request.params.tourId;
+  if (!request.body.user) request.body.user = request.params.userId;
+  next();
+};
 
-exports.createReview = catchAsync(async (request, response, next) => {
-  const newReview = await Review.create(request.body);
-  response.status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.CREATED).json({
-    status: HTTP_STATUS.SUCCESS,
-    data: {
-      review: newReview,
-    },
-  });
-});
+exports.getAllReviews = factoryHandler.getAll(Review);
+exports.getReview = factoryHandler.getOne(Review);
+exports.createReview = factoryHandler.createOne(Review);
+exports.updateReview = factoryHandler.updateOne(Review);
+exports.deleteReview = factoryHandler.deleteOne(Review);

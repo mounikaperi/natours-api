@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 const Tour = require("../models/tourModel");
+const factoryHandler = require('../handlers/factoryHandler');
 const { HTTP_STATUS_CODES, HTTP_STATUS } = require("../utils/constants");
 const catchAsync = require("../utils/commonUtils");
 const AppError = require("../utils/AppError");
@@ -11,81 +12,11 @@ exports.aliasTopTours = (request, response, next) => {
   next();
 };
 
-exports.getAllTours = catchAsync(async (request, response, next) => {
-  const tours = await Tour.find();
-  response
-    .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK)
-    .json({
-      status: HTTP_STATUS.SUCCESS,
-      totalNumberOfTours: tours.length,
-      data: { tours }
-    }
-    );
-});
-
-exports.getTour = catchAsync(async (request, response, next) => {
-  const { params } = request || {};
-  const { id: tourId } = params || {};
-  const tour = await Tour.findById(tourId).populate({ 
-    path: 'guides',
-    select: '-__v -passwordChangedAt' 
-  });
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.NOT_FOUND))
-  }
-  response
-    .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK)
-    .json({
-      status: HTTP_STATUS.SUCCESS,
-      data: { tour }
-    });
-});
-
-exports.createTour = catchAsync(async (request, response, next) => {
-  const newTour = await Tour.create(request.body);
-  response
-    .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.CREATED)
-    .json({
-      status: HTTP_STATUS.SUCCESS,
-      data: {
-        tour: newTour
-      }
-    });
-});
-
-exports.updateTour = catchAsync(async (request, response, next) => {
-  const { params, body } = request || {};
-  const { id: tourId } = params || {};
-  const updatedTour = await Tour.findByIdAndUpdate(tourId, body, {
-    new: true,
-    runValidators: true
-  })
-  if (!updatedTour) {
-    return next(new AppError('No tour found with the ID', HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.NOT_FOUND))
-  }
-  response
-    .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK)
-    .json({
-      status: HTTP_STATUS.SUCCESS,
-      data: {
-        updatedTour
-      }
-    });
-})
-
-exports.deleteTour = catchAsync(async (request, response, next) => {
-  const tour = await Tour.findByIdAndDelete(request.params.id);
-  if (!tour) {
-    return next(new AppError('No tour found with the ID', HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.BAD_REQUEST))
-  }
-  response
-    .status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.NO_CONTENT)
-    .json({
-      status: HTTP_STATUS.SUCCESS,
-      message: "The tour has been deleted"
-    }
-    )
-});
+exports.getAllTours = factoryHandler.getAll(Tour);
+exports.getTour = factoryHandler.getOne(Tour);
+exports.createTour = factoryHandler.createOne(Tour);
+exports.updateTour = factoryHandler.updateOne(Tour);
+exports.deleteTour = factoryHandler.deleteOne(Tour);
 
 exports.getTourStats = catchAsync(async (request, response, next) => {
   const statistics = await Tour.aggregate([
@@ -163,4 +94,58 @@ exports.getMonthlyPlan = catchAsync(async (request, response, next) => {
         plan
       }
     })
-})
+});
+
+// /tours-within/:distance/center/:latlng/unit/:unit
+// /tours-within/233/center/34.111745,-118.113491/unit/mi
+exports.getToursWithin = catchAsync(async (request, response, next) => {
+  const { distance, latlng, unit } = request.params || {};
+  const [latitude, longitude] = latlng.split(',');
+  const radius = unit === 'mi' ? (distance/3963.2) : (distance/6378.1);
+  if (!latitude || !longitude) {
+    next(new AppError('Please provide latitide and longitude in the format lat,lng', HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.BAD_REQUEST));
+  }
+  const tours = await Tour.find({
+    startLocation: { $geoWithin: { $centerSphere: [[latitude, longitude], radius] } }
+  });
+  response.status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK).json({
+    status: HTTP_STATUS.SUCCESS,
+    results: tours.length,
+    data: {
+      data: tours
+    }
+  });
+});
+
+exports.getDistances = catchAsync(async (request, response, next) => {
+  const { latlng, unit } = request.params || {};
+  const [latitude, longitude] = latlng.split(',');
+  const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+  if (!latitude || !longitude) {
+    next(new AppError('Please provide latitide and longitude in the format lat,lng', HTTP_STATUS_CODES.CLIENT_ERROR_RESPONSE.BAD_REQUEST));
+  }
+  const distances = await Tour.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: 'Point',
+          coordinates: [longitude * 1, latitude * 1]
+        },
+        distanceField: 'distance',
+        distanceMultiplier: multiplier
+      }
+    },
+    {
+      $project: {
+        distance: 1,
+        name: 1
+      }
+    }
+  ]);
+  response.status(HTTP_STATUS_CODES.SUCCESSFUL_RESPONSE.OK).json({
+    status: HTTP_STATUS.SUCCESS,
+    data: {
+      data: distances
+    }
+  });
+});
